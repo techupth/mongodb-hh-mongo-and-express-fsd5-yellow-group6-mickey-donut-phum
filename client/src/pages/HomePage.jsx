@@ -8,12 +8,20 @@ function HomePage() {
   const [products, setProducts] = useState([]);
   const [isError, setIsError] = useState(null);
   const [isLoading, setIsLoading] = useState(null);
+  const [category , setCategory] = useState('');
+  const [inputText , setInputText] = useState('');
+
+  function handleAddrTypeChange(event) {
+    setCategory(event.target.value);
+  }
 
   const getProducts = async () => {
     try {
       setIsError(false);
       setIsLoading(true);
-      const results = await axios("http://localhost:4001/products");
+      const results = await axios(
+        `http://localhost:4001/products?category=${category}&keywords=${inputText}`
+      );
       setProducts(results.data.data);
       setIsLoading(false);
     } catch (error) {
@@ -30,7 +38,7 @@ function HomePage() {
 
   useEffect(() => {
     getProducts();
-  }, [products]);
+  }, [category, inputText, products]);
 
   return (
     <div>
@@ -48,14 +56,19 @@ function HomePage() {
         <div className="search-box">
           <label>
             Search product
-            <input type="text" placeholder="Search by name" />
+            <input type="text" placeholder="Search by name" onChange={(event)=>{setInputText(event.target.value)}} value={inputText}/>
           </label>
         </div>
         <div className="category-filter">
           <label>
             View Category
-            <select id="category" name="category" value="it">
-              <option disabled value="">
+            <select
+              id="category"
+              name="category"
+              defaultValue={category}
+              onChange={handleAddrTypeChange}
+            >
+              <option value="">
                 -- Select a category --
               </option>
               <option value="it">IT</option>
@@ -85,8 +98,8 @@ function HomePage() {
               <div className="product-detail">
                 <h1>Product name: {product.name} </h1>
                 <h2>Product price: {product.price}</h2>
-                <h3>Category: IT</h3>
-                <h3>Created Time: 1 Jan 2011, 00:00:00</h3>
+                <h3>Category: {product.category}</h3>
+                <h3>Created Time: {product.created_at}</h3>
                 <p>Product description: {product.description} </p>
                 <div className="product-actions">
                   <button
